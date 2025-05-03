@@ -1,21 +1,41 @@
-import { useState } from "react";
+import BlogList from "./BlogList";
+import useFetch from "./useFetch";
+import axios from "axios";
 
 const Home = () => {
-	const [blogs, setBlogs] = useState([
-		{title: "My New website", body: "Warehouse render-farm military-grade network cartel dolphin A.I. Tokyo crypto-long-chain hydrocarbons rifle footage. Shanty town sign franchise film saturation point 8-bit alcohol receding dome jeans. Smart-motion cartel rifle tower math-skyscraper neon artisanal garage wristwatch modem denim concrete. ", author: "Radhwen", id: 1},
-		{title: "Welcome section", body: "Knife skyscraper systema tiger-team hotdog render-farm artisanal corporation. Wonton soup wristwatch rebar sunglasses military-grade city motion disposable assault numinous rifle narrative faded drugs. Artisanal convenience store garage sub-orbital lights stimulate assault human kanji. Sign math-weathered artisanal sentient courier network Tokyo singularity rebar marketing franchise uplink. ", author: "Amri", id: 2},
-		{title: "React dev tips", body: "Assault artisanal construct assassin 8-bit computer engine augmented reality katana. Lights pen physical bomb numinous realism boat neural papier-mache chrome saturation point footage construct narrative rifle. Carbon corrupted euro-pop Shibuya order-flow warehouse dolphin wristwatch rifle stimulate garage. Tiger-team tube-space dead sub-orbital shoes crypto-futurity Kowloon corporation geodesic sensory semiotics spook. Film vinyl assault sub-orbital neural refrigerator meta-plastic. ", author: "Amri Radhwen", id: 3}
-	]);
+	const {data: blogs, loading, error, setData} = useFetch("http://localhost:5000/blogs");
+	const handleDelete = (id) => {
+		axios.delete(`http://localhost:5000/blogs/${id}`)
+		.then(res=>{
+			setData(blogs.filter(blog=>blog.id !== id))
+		})
+		.catch(err=>{
+			console.log(err)
+		})
+	}
 
 	return(
 		<div className="home">
 			{
-				blogs.map((blog)=>(
-					<div className="blog-preview" key={blog.id}>
-						<h2>{blog.title}</h2>{}
-						<p>Written by {blog.author}</p>
+				!error ? ( 
+				!loading ? 
+				(
+					<>
+					<BlogList blogs={blogs} title="All Blogs" handleDelete={handleDelete}/>
+					<BlogList blogs={blogs.filter((blog)=>blog.author === "amri" || blog.author === "Amri")} title="Amri's Blogs" handleDelete={handleDelete}/>
+					</>
+				):
+				(
+					<div className="loading">
+						<p>Loading...</p>
 					</div>
-				))
+				)
+				):
+				(
+					<div className="error">
+						<p>{error}</p>
+					</div>
+				)
 			}
 		</div>
 	);
